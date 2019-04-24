@@ -3,9 +3,7 @@
 Cue system for simple two-way communication and visual signaling using a WebRTC peer-to-peer connection.
 This was initially designed for signaling on-stage actors during a theater performance.
 
-Demo: https://jmcker.github.io/Peer-to-Peer-Cue-System
-
-[PeerJS examples](https://peerjs.com/examples)
+Demo: https://ylevytskyy.github.io/Peer-to-Peer-Cue-System/
 
 ### Setup ###
 

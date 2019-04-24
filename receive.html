@@ -43,7 +43,7 @@
                 var lastPeerId = null;
                 var peer = null; // Own peer object
                 var peerId = null;
-                var conn = null;
+                var conn = [];
                 var recvId = document.getElementById("receiver-id");
                 var status = document.getElementById("status");
                 var message = document.getElementById("message");
@@ -90,8 +90,8 @@
                         //     return;
                         // }
 
-                        conn = c;
-                        console.log("Connected to: " + conn.peer);
+                        conn.push(c);
+                        console.log("Connected to: " + c.peer);
                         status.innerHTML = "Connected"
                         ready();
                     });
@@ -105,7 +105,7 @@
                         peer.reconnect();
                     });
                     peer.on('close', function() {
-                        conn = null;
+                        conn = [];
                         status.innerHTML = "Connection destroyed. Please refresh";
                         console.log('Connection destroyed');
                     });
@@ -120,36 +120,41 @@
                  * Defines callbacks to handle incoming data and connection events.
                  */
                 function ready() {
-                    conn.on('data', function (data) {
-                        console.log("Data recieved");
-                        var cueString = "<span class=\"cueMsg\">Cue: </span>";
-                        switch (data) {
-                            case 'Go':
-                                go();
-                                addMessage(cueString + data);
-                                break;
-                            case 'Fade':
-                                fade();
-                                addMessage(cueString + data);
-                                break;
-                            case 'Off':
-                                off();
-                                addMessage(cueString + data);
-                                break;
-                            case 'Reset':
-                                reset();
-                                addMessage(cueString + data);
-                                break;
-                            default:
-                                addMessage("<span class=\"peerMsg\">Peer: </span>" + data);
-                                break;
-                        };
-                    });
-                    conn.on('close', function () {
-                        status.innerHTML = "Connection reset<br>Awaiting connection...";
-                        conn = null;
-                        start(true);
-                    });
+                	conn.forEach(function(c) {
+	                    c.on('data', function (data) {
+	                        console.log("Data recieved");
+	                        var cueString = "<span class=\"cueMsg\">Cue: </span>";
+	                        switch (data) {
+	                            case 'Go':
+	                                go();
+	                                addMessage(cueString + data);
+	                                break;
+	                            case 'Fade':
+	                                fade();
+	                                addMessage(cueString + data);
+	                                break;
+	                            case 'Off':
+	                                off();
+	                                addMessage(cueString + data);
+	                                break;
+	                            case 'Reset':
+	                                reset();
+	                                addMessage(cueString + data);
+	                                break;
+	                            default:
+	                                addMessage("<span class=\"peerMsg\">Peer: </span>" + data);
+	                                break;
+	                        };
+	                    });
+	                    c.on('close', function () {
+	                        status.innerHTML = "Connection reset<br>Awaiting connection...";
+	                        var i = conn.indexOf(c);
+	                        if (i >= 0) {
+	                        	conn.splice(i, 1);
+	                        }
+	                        start(true);
+	                    });
+	                });
                 }
 
                 function go() {
@@ -218,13 +223,15 @@
                 };
                 // Send message
                 sendButton.onclick = function () {
-                    if (conn.open) {
-                        var msg = sendMessageBox.value;
-                        sendMessageBox.value = "";
-                        conn.send(msg);
-                        console.log("Sent: " + msg)
-                        addMessage("<span class=\"selfMsg\">Self: </span>" + msg);
-                    }
+                	conn.forEach(function(c) {
+	                    if (c.open) {
+	                        var msg = sendMessageBox.value;
+	                        sendMessageBox.value = "";
+	                        c.send(msg);
+	                        console.log("Sent: " + msg)
+	                        addMessage("<span class=\"selfMsg\">Self: </span>" + msg);
+	                    }
+	                });
                 };
                 // Clear messages box
                 clearMsgsButton.onclick = function () {
