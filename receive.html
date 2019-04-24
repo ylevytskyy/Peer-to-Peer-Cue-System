@@ -223,9 +223,9 @@
                 };
                 // Send message
                 sendButton.onclick = function () {
+	                var msg = sendMessageBox.value;
                 	conn.forEach(function(c) {
 	                    if (c.open) {
-	                        var msg = sendMessageBox.value;
 	                        sendMessageBox.value = "";
 	                        c.send(msg);
 	                        console.log("Sent: " + msg)
